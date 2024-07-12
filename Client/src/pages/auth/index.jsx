@@ -1,5 +1,5 @@
 import React from 'react'
-import Background from "@/assets/login2.png"
+import Background from "/my-icon.jpeg"
 import Victory from "@/assets/victory.svg"
 import { Tabs,TabsList,TabsTrigger,TabsContent } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
