@@ -5,18 +5,88 @@ import { Tabs,TabsList,TabsTrigger,TabsContent } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import {Input} from '@/components/ui/input'
 import { useState } from 'react'
+import { toast } from 'sonner'
+import { apiClient } from '@/lib/api-client'
+import { LOGIN_ROUTE, SIGNUP_ROUTE } from '@/utils/constants'
+import { useNavigate } from 'react-router-dom'
+import { useAppStore } from '@/store'
+import { useEffect } from 'react'
 const Auth = ()=> {
 
+    const navigate = useNavigate()
+    const {setUserInfo} = useAppStore()
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
-    const handleLogin =  async()=>{
+    const validateSignup = ()=>{
+        if(!email.length){
+           toast.error("Email is required")
+           return false; 
+        }
+        if(!password.length){
+            toast.error("Password is required")
+            return false; 
+        }
+        if(password!==confirmPassword){
+            toast.error("Confirm Password does not match the Password");
+            return false;
+        }
+        else{
+            return true;
+        }
 
     }
 
-    const handleSignup = async()=>{
+    const validateLogin = ()=>{
+        if(!email.length){
+        toast.error("Email is required")
+        return false; 
+        }
+        if(!password.length){
+            toast.error("Password is required")
+            return false; 
+        }
+        return true;
+    }
 
+    const handleLogin =  async()=>{
+        if(!validateLogin()){
+            return;
+        }
+        try {
+            const response = await apiClient.post(LOGIN_ROUTE,{email,password},{withCredentials:true})
+            if(response.data.user.id){
+                // console.log(response.data.user)
+                setUserInfo(response.data.user)
+                if(response.data.user.profileSetup){
+                    navigate('/chat');
+                }
+                else{
+                    navigate('/profile')
+                }
+            }
+        } catch (error) {
+            const errMsg = error.response.data
+            toast.error(errMsg)
+        }
+        
+    }
+
+    const handleSignup = async()=>{
+        if(!validateSignup()){
+            return;
+        }
+        try {
+            const response = await apiClient.post(SIGNUP_ROUTE,{email,password},{withCredentials:true})
+            if(response.status==201){
+                navigate('/profile');
+            }
+        } catch (error) {
+            const errMsg = error.response.data
+            toast.error(errMsg)
+        }
+        // console.log(response.data.data)
     }
 
     return (
@@ -34,7 +104,7 @@ const Auth = ()=> {
                     </p>
                 </div>
                 <div className="flex items-center justify-center w-full">
-                <Tabs className='w-3/4'>
+                <Tabs className='w-3/4' defaultValue='login'>
                 <TabsList className="bg-transparent rounded-none w-full">
                     <TabsTrigger className="data-[state=active]:bg-transparent text-black text-opacity-90 border-b-2 rounded-none w-full data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:border-b-purple-500 p-3 transition-all duration-300" value="login">Login</TabsTrigger>
                     <TabsTrigger className="data-[state=active]:bg-transparent text-black text-opacity-90 border-b-2 rounded-none w-full data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:border-b-purple-500 p-3 transition-all duration-300" value="signup">Signup</TabsTrigger>
@@ -48,7 +118,7 @@ const Auth = ()=> {
                 <Input placeholder="Email" type="email" className="rounded-full p-6" value={email} onChange={(e)=>setEmail(e.target.value)}></Input>
                 <Input placeholder="Password" type="password" className="rounded-full p-6" value={password} onChange={(e)=>setPassword(e.target.value)}></Input>
                 <Input placeholder="Confirm Password" type="password" className="rounded-full p-6" value={confirmPassword} onChange={(e)=>setConfirmPassword(e.target.value)}></Input>
-                <Button className="rounded-full p-6" onClick={handleSignup}>Login</Button>
+                <Button className="rounded-full p-6" onClick={handleSignup}>Signup</Button>
                 </TabsContent>
                 </Tabs>
                 </div>
