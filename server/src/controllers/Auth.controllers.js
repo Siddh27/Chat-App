@@ -1,6 +1,8 @@
 import User from "../models/user.models.js"
 import jwt from "jsonwebtoken"
 import { compare } from "bcrypt"
+import fs, { unlinkSync } from 'fs'
+
 
 const signup = async(req,res,next)=>{
     try {
@@ -107,4 +109,70 @@ const getUserInfo = async(req,res)=>{
     }
 }
 
-export {signup,login,getUserInfo}
+const updateProfile = async(req,res)=>{
+    try {
+        const userId = req.userId
+        const {firstName,lastName,color} = req.body;
+        if(!firstName || !lastName){
+            return res.status(400).json("Firstname and lastName is required");
+        } 
+        const userData = await User.findByIdAndUpdate(userId,{
+            firstName,
+            lastName,
+            color,
+            profileSetup:true
+        },{new:true,runValidators:true})
+        return res.status(200).json({
+                id:userData._id,
+                email:userData.email,
+                profileSetup:userData.profileSetup,
+                firstName:userData.firstName,
+                lastName:userData.lastName,
+                image:userData.image,
+                color:userData.color
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const addProfileImage = async(req,res)=>{
+    try {
+        if(!req.file){
+            return res.status(400).json("file is required!");
+        }
+        const date = Date.now();
+        let fileName = "uploads/profiles/"+date+req.file.originalname;
+        fs.renameSync(req.file.path,fileName)
+
+        const updatedUser = await User.findByIdAndUpdate(req.userId,{
+            image:fileName},{new:true,runValidators:true})
+
+        return res.status(200).json({
+            image:updatedUser.image
+        })
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const removeProfileImage = async(req,res)=>{
+    try {
+        const userId = req.userId;
+        const user = await User.findById(userId);
+        if(!user){
+            return res.status(404).json("User not found" )
+        }
+        if(user.image){
+            unlinkSync(user.image);
+        }
+        user.image = null;
+        await user.save();
+        return res.status(200).json("profile image removed successfully")
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export {signup,login,getUserInfo,updateProfile,addProfileImage,removeProfileImage}
