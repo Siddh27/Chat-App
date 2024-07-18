@@ -175,4 +175,13 @@ const removeProfileImage = async(req,res)=>{
     }
 }
 
-export {signup,login,getUserInfo,updateProfile,addProfileImage,removeProfileImage}
+const logout = async(req,res)=>{
+    try {
+        res.cookie("token","",{maxAge:1,secure:true,sameSite:"None"});
+        return res.status(200).json("Logout Successfull");
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export {signup,login,getUserInfo,updateProfile,addProfileImage,removeProfileImage,logout}

@@ -1,5 +1,4 @@
 import { useAppStore } from '@/store'
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import {IoArrowBack} from "react-icons/io5"
 import { AvatarImage } from '@radix-ui/react-avatar'
@@ -8,7 +7,6 @@ import { Avatar } from '@radix-ui/react-avatar'
 import { getColor } from '@/lib/utils'
 import { FaPlus,FaTrash} from "react-icons/fa";
 import { Input } from '@/components/ui/input'
-import { Key } from 'lucide-react'
 import { colors } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
@@ -57,6 +55,7 @@ const Profile = ()=> {
         try {
             const response = await apiClient.post(UPDATE_PROFILE_ROUTE,{firstName,lastName,color:selectedColor},{withCredentials:true})
             if(response.status===200 && response.data){
+                setUserInfo(response.data)
                 toast.success("Profile Updated Successfully!");
                 navigate('/chat')
             }

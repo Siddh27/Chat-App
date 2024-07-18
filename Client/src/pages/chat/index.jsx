@@ -15,6 +15,7 @@ const Chat=()=> {
     useEffect(() => {
         if(!userInfo.profileSetup){
             toast('Please set up Profile to continue');
+            console.log(userInfo.profileSetup)
             navigate("/profile")
         }
 
@@ -25,7 +26,7 @@ const Chat=()=> {
         <div className='flex h-[100vh] text-white overflow-hidden'>
            <ContactsContainer/>
            {/* <EmptyChatContainer/> */}
-           <ChatContainer/>
+           {/* <ChatContainer/> */}
         </div>
     )
 }
