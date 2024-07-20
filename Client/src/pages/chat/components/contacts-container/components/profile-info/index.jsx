@@ -22,7 +22,7 @@ function ProfileInfo() {
                 setUserInfo(null);
             }
         } catch (error) {
-            
+            console.log(error)
         }
     }
     return (
